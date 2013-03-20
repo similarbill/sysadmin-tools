@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 require 'net/http'
 require "uri"
 require 'net/smtp'
@@ -5,23 +7,18 @@ require 'net/smtp'
 url = "http://somedomain/someurl"
 restart = "service your.service.name.here restart"
 mailserver = "your.smtp.server"
-maillogin = "your.alert.user.login"
-mailpassword = "your.alert.user.password"
-maildomain = "your.domain"
 from = "alertbot@example.com"
 to = "alertlist@example.com"
 message = "Subject:  Service is down!"
 
-smtp = Net::SMTP.new 'smtp.yourserver.com', 587
-smtp.enable_starttls
+smtp = Net::SMTP.new mailserver, 25 
 	
 Net::HTTP.get_response(URI.parse(url)) do |response|
   response=response.body
   if response.include?('foo')
   else 
        system(restart) 
-       smtp.start(maildomain, maillogin, mailpassword, :login) do
-         smtp.send_message(message, from, to) 
+       smtp.send_message(message, from, to) 
+       smtp.finish	
   end
-       end
 end
